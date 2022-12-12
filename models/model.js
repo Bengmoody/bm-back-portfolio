@@ -14,3 +14,15 @@ exports.selectReviews = () => {
     })
 
 }
+
+exports.selectReviewsById = (review_id) => {
+   return db.query('SELECT * FROM reviews WHERE review_id = $1',[review_id])
+   .then(({rows}) => {
+        if (rows.length === 0) {
+            return Promise.reject({status:404, msg: "review ID is not found in database"})
+        } else { 
+            return rows[0];
+        }
+   })
+}
+
