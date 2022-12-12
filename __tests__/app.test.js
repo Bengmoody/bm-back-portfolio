@@ -16,8 +16,10 @@ afterAll(() => {
     return db.end();
 })
 
-// main testing body
+// MAIN TESTING BODY
 
+
+// get api/categories
 describe('GET /api/categories',() => {
     test("check that status 200 is returned",() => {
         return request(app).get('/api/categories').expect(200)
@@ -39,6 +41,7 @@ describe('GET /api/categories',() => {
     })
 })
 
+// handle any/all incorrect URLs
 describe('GET /api/categorys',() => {
     test("check that status 404 is returned",() => {
         return request(app).get('/api/categorys').expect(404)
@@ -48,5 +51,12 @@ describe('GET /api/categorys',() => {
         .then(({body}) => {
             expect(body).toEqual({msg:"path not found"})
         })
+    })
+})
+
+// get api/reviews
+describe('GET /api/reviews',() => {
+    test("check that status 200 is returned",() => {
+        return request(app).get('/api/reviews').expect(200)
     })
 })
