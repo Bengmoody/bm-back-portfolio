@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS nc_games_test;
-DROP DATABASE IF EXISTS nc_games;
+DROP DATABASE IF EXISTS project_database_test;
+DROP DATABASE IF EXISTS project_database;
 
-CREATE DATABASE nc_games_test;
-CREATE DATABASE nc_games;
+CREATE DATABASE project_database_test;
+CREATE DATABASE project_database;
