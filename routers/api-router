@@ -1,0 +1,9 @@
+const express = require('express')
+const apiRouter = express.Router()
+let app = require('../app')
+let { getCategories } = require('../controllers/controller')
+
+
+apiRouter.get('/categories',getCategories)
+
+module.exports = apiRouter;
