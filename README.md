@@ -8,11 +8,11 @@ This utilises one of the two following .env.* files to calibrate the pool approp
 To allow the dev route, make the following file in your main directory:
 .env.dev
 containing the line:
-PGDATABASE = "project_database"
+PGDATABASE="project_database"
 
 To allow the test route, make the following file in your main directory:
 .env.test
 containing the line:
-PGDATABASE = "project_database_test"
+PGDATABASE="project_database_test"
 
 Make sure both of these files are added to your .gitignore file
