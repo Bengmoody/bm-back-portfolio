@@ -43,20 +43,10 @@ describe('GET /api/categories',() => {
 
 // get api/reviews
 describe('GET /api/reviews',() => {
-    test("check that status 200 is returned",() => {
-        return request(app).get('/api/reviews').expect(200)
-    })
-    test("check that response is an array of objects",() => {
+    
+    test("check that status 200 returned and the structure of the results is correct",() => {
         return request(app).get('/api/reviews')
-        .then(({body:{reviews}}) => {
-            expect(Array.isArray(reviews)).toBe(true);
-            expect(reviews.every((review) => {
-                return typeof review === "object"
-            })).toBe(true);
-        })
-    })
-    test("check that the structure of the results is correct",() => {
-        return request(app).get('/api/reviews')
+        .expect(200)
         .then(({body:{reviews}}) => {
             expect(reviews).toHaveLength(13)
             reviews.forEach((review) => {
@@ -74,12 +64,7 @@ describe('GET /api/reviews',() => {
                     })
                 )
             })
-        })
-    })
-    test("check that the data is sorted by date in ascending order",() => {
-        return request(app).get('/api/reviews')
-        .then(({body:{reviews}}) => {
-            expect(reviews).toBeSortedBy('created_at',{ascending:true})
+            expect(reviews).toBeSortedBy('created_at',{descending:true})
         })
     })
 })
