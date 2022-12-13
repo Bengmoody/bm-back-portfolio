@@ -110,12 +110,11 @@ describe('GET /api/reviews/:review_id/comments',() => {
             
         })
     })
-    // test("check that status 404 and helpful message provided when review has no comments",() => {
-    //     return request(app).get('/api/reviews/1/comments')
-    //     .expect(404)
-    //     .then(({body}) => {
-    //         expect(body).toBe({msg:"no comments found for this review ID"})
-          
-    //     })
-    // })
+    test("check that status 200 and empty array when review has no comments",() => {
+        return request(app).get('/api/reviews/1/comments')
+        .expect(200)
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(0)
+        })
+    })
 })
