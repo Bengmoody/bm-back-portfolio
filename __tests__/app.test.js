@@ -139,7 +139,6 @@ describe('GET /api/reviews/:review_id/comments',() => {
         return request(app).get('/api/reviews/2/comments')
         .expect(200)
         .then(({body: {comments}}) => {
-            console.log(comments)
             expect(comments).toBeSortedBy('created_at',{descending:true})
             
         })
@@ -149,6 +148,20 @@ describe('GET /api/reviews/:review_id/comments',() => {
         .expect(200)
         .then(({body:{comments}}) => {
             expect(comments).toHaveLength(0)
+        })
+    })
+    test("check that status 400 and error message when review_id is invalid",() => {
+        return request(app).get('/api/reviews/banana/comments')
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review ID is not in correct format"})
+        })
+    })
+    test("check that status 404 and error message when review_id is invalid",() => {
+        return request(app).get('/api/reviews/25/comments')
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review ID is not found in database"})
         })
     })
 })
