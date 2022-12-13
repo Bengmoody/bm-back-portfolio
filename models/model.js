@@ -33,6 +33,14 @@ exports.selectReviewsById = (review_id) => {
    })
 }
 
+exports.insertComments = ({body,username,review_id}) => {
+    let inputArr = [body,username,review_id];
+    return db.query('INSERT INTO comments (body, author, review_id, votes) VALUES ($1,$2,$3,0) RETURNING *;',inputArr)
+    .then(({rows}) => {
+        return rows[0]
+    })
+}
+
 exports.updateVotesByReviewId = (body,review_id) => {
     return db.query('UPDATE reviews SET votes = votes + $1 WHERE review_id = $2 RETURNING *;',[body.inc_votes,review_id])
     .then(({rows}) => {
