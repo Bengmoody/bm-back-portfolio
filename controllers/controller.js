@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments,updateVotesByReviewId } = require('../models/model.js')
 const app = require('../app.js')
 
 
@@ -36,5 +36,12 @@ exports.getReviewsById = (req,res,next) => {
     })
     .catch((err) => {
         next(err)
+    })
+}
+
+exports.changeVotesByReviewId = (req,res) => {
+    updateVotesByReviewId(req.body,req.params.review_id)
+    .then((review) => {
+        res.status(202).send({review})
     })
 }

@@ -165,3 +165,22 @@ describe('GET /api/reviews/:review_id/comments',() => {
         })
     })
 })
+
+describe.only("PATCH /api/reviews/:review_id",() => {
+    test("if given number, correctly increases number of votes by that and returns 202",() => {
+        return request(app).patch('/api/reviews/2')
+        .send({inc_votes: 100})
+        .expect(202)
+        .then(({body:{review}}) => {
+            expect(review.title).toBe("Jenga")
+            expect(review.review_id).toBe(2)
+            expect(review.designer).toBe("Leslie Scott")
+            expect(review.owner).toBe("philippaclaire9")
+            expect(review.review_img_url).toBe('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
+            expect(review.review_body).toBe('Fiddly fun for all the family')
+            expect(review.category).toBe("dexterity")
+            expect(typeof review.created_at).toBe("string")
+            expect(review.votes).toBe(105)
+        })
+    })
+})
