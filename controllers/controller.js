@@ -1,5 +1,6 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments } = require('../models/model.js')
 const app = require('../app.js')
+const {bodyTypeChecker} = require('../db/utils')
 
 
 exports.getCategories = (req,res) => {
@@ -33,6 +34,23 @@ exports.getReviewsById = (req,res,next) => {
     selectReviewsById(req.params.review_id)
     .then((review) => {
         res.status(200).send({review})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.addComments = (req,res,next) => {
+    const typeObject = {body:"string",username:"string",review_id:"number"}
+
+    const newComment = req.body;
+    newComment.review_id = parseInt(req.params.review_id)
+    return bodyTypeChecker(newComment,typeObject)
+    .then((resolveMsg) => {
+        return insertComments(newComment)
+    })
+    .then((comment) => {
+        res.status(201).send({comment})
     })
     .catch((err) => {
         next(err)
