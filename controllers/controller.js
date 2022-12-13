@@ -27,6 +27,8 @@ exports.getComments = (req,res,next) => {
         res.status(200).send({comments})
     })
     .catch((err) => {
+        err.prop_name = "review_id"
+
         next(err);
     })
 }
@@ -36,6 +38,8 @@ exports.getReviewsById = (req,res,next) => {
         res.status(200).send({review})
     })
     .catch((err) => {
+        err.prop_name = "review_id"
+
         next(err)
     })
 }
@@ -53,12 +57,28 @@ exports.addComments = (req,res,next) => {
         res.status(201).send({comment})
     })
     .catch((err) => {
+        err.prop_name = "review_id"
+
         next(err)
     })
 }
-exports.changeVotesByReviewId = (req,res) => {
-    updateVotesByReviewId(req.body,req.params.review_id)
+exports.changeVotesByReviewId = (req,res,next) => {
+    let passedReviewCheck=false;;
+
+    return selectReviewsById(req.params.review_id)
+    .then(() => {
+        passedReviewCheck=true;
+        return updateVotesByReviewId(req.body,req.params.review_id)
+    })    
     .then((review) => {
         res.status(202).send({review})
+    })
+    .catch((err) => {
+        if (passedReviewCheck) {
+            err.prop_name = "inc_votes"
+        } else {
+            err.prop_name = "review_id"
+        }
+        next(err)
     })
 }

@@ -107,7 +107,7 @@ describe("get /api/reviews/:review_id",() => {
         return request(app).get('/api/reviews/27')
         .expect(404)
         .then(({body}) => {
-            expect(body).toEqual({msg: "review ID is not found in database"})
+            expect(body).toEqual({msg: "review_id is not found in database"})
         })
 
     })
@@ -161,11 +161,11 @@ describe('GET /api/reviews/:review_id/comments',() => {
         return request(app).get('/api/reviews/25/comments')
         .expect(404)
         .then(({body}) => {
-            expect(body).toEqual({msg:"review ID is not found in database"})
+            expect(body).toEqual({msg:"review_id is not found in database"})
         })
     })
 })
-
+// POST /api/reviews/:review_id/comments
 describe('POST /api/reviews/:review_id/comments',() => {
     test("responds with a 201 and the data entered into the database if successful",() => {
         const newComment = {body:"I freaking love this thing", username: "bainesface"}
@@ -264,7 +264,7 @@ describe('POST /api/reviews/:review_id/comments',() => {
 })
 
 // PATCH /api/reviews/:review_id
-describe.only("PATCH /api/reviews/:review_id",() => {
+describe("PATCH /api/reviews/:review_id",() => {
     test("if given number, correctly increases number of votes by that and returns 202",() => {
         return request(app).patch('/api/reviews/2')
         .send({inc_votes: 100})
@@ -279,6 +279,30 @@ describe.only("PATCH /api/reviews/:review_id",() => {
             expect(review.category).toBe("dexterity")
             expect(typeof review.created_at).toBe("string")
             expect(review.votes).toBe(105)
+        })
+    })
+    test("if newVote is not a number, should give error 400 and appropriate message",() => {
+        return request(app).patch('/api/reviews/2')
+        .send({inc_votes: "testing"})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"inc_votes is not in correct format"})
+        })
+    })
+    test("if review_id is incorrect type should give 400, and err msg",() => {
+        return request(app).patch('/api/reviews/banana')
+        .send({inc_votes: 100})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review_id is not in correct format"})
+        })
+    })
+    test("if review_id is valid but not in database, 404 and err msg",() => {
+        return request(app).patch('/api/reviews/27')
+        .send({inc_votes: 100})
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review_id is not found in database"})
         })
     })
 })
