@@ -168,7 +168,7 @@ describe('GET /api/reviews/:review_id/comments',() => {
 
 describe('POST /api/reviews/:review_id/comments',() => {
     test("responds with a 201 and the data entered into the database if successful",() => {
-        const newComment = {body:"I freaking love this thing", author: "bainesface"}
+        const newComment = {body:"I freaking love this thing", username: "bainesface"}
         
         return request(app).post('/api/reviews/2/comments')
         .send(newComment)
@@ -183,7 +183,7 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
     test("when review_id not found, responds with a 404 && error message",() => {
-        const newComment = {body:"I freaking love this thing", author: "bainesface"}
+        const newComment = {body:"I freaking love this thing", username: "bainesface"}
         
         return request(app).post('/api/reviews/25/comments')
         .send(newComment)
@@ -193,7 +193,7 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
     test("when review_id not correct, responds with a 400 && error message",() => {
-        const newComment = {body:"I freaking love this thing", author: "bainesface"}
+        const newComment = {body:"I freaking love this thing", username: "bainesface"}
         
         return request(app).post('/api/reviews/banana/comments')
         .send(newComment)
@@ -203,7 +203,7 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
     test("can handle errors in body (incorrect type )",() => {
-        const newComment = {body:2, author: "bainesface"}        
+        const newComment = {body:2, username: "bainesface"}        
         return request(app).post('/api/reviews/2/comments')
         .send(newComment)
         .expect(400)
@@ -212,7 +212,7 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
     test("can handle errors in body (missing)",() => {
-        const newComment = {author: "bainesface"}
+        const newComment = {username: "bainesface"}
         return request(app).post('/api/reviews/2/comments')
         .send(newComment)
         .expect(400)
@@ -221,12 +221,12 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
     test("can handle errors in author (incorrect type)",() => {
-        const newComment = {body:"games rule bro", author: 16}        
+        const newComment = {body:"games rule bro", username: 16}        
         return request(app).post('/api/reviews/2/comments')
         .send(newComment)
         .expect(400)
         .then(({body}) => {
-            expect(body).toEqual({msg:"author is not in correct format"})
+            expect(body).toEqual({msg:"username is not in correct format"})
         })
     })
     test("can handle errors in author (missing)",() => {
@@ -235,20 +235,20 @@ describe('POST /api/reviews/:review_id/comments',() => {
         .send(newComment)
         .expect(400)
         .then(({body}) => {
-            expect(body).toEqual({msg:"author is missing"})
+            expect(body).toEqual({msg:"username is missing"})
         })
     })
     test("can handle errors in author (correct format but not valid)",() => {
-        const newComment = {body:"games rule bro",author:"bob27"}
+        const newComment = {body:"games rule bro",username:"bob27"}
         return request(app).post('/api/reviews/2/comments')
         .send(newComment)
         .expect(404)
         .then(({body}) => {
-            expect(body).toEqual({msg:"author is not found in database"})
+            expect(body).toEqual({msg:"username is not found in database"})
         })
     })
     test("user tries to hand in extra things, code should ignore them --> 201, correct properties",() => {
-        const newComment = {body:"games rule bro",votes: "I vote yes", author: "bainesface",created_at: new Date(1616874588115)}        
+        const newComment = {body:"games rule bro",votes: "I vote yes", username: "bainesface",created_at: new Date(1616874588115)}        
         return request(app).post('/api/reviews/2/comments')
         .send(newComment)
         .expect(201)

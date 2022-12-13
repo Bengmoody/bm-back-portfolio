@@ -20,6 +20,9 @@ app.use((err,req,res,next) => {
         } else {
             msg = msg[0]
         }
+        if (msg === "author") { 
+            msg = "username"
+        }
         msg += " is not found in database"
         res.status(404).send({msg})
     } else {

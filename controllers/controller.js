@@ -41,7 +41,7 @@ exports.getReviewsById = (req,res,next) => {
 }
 
 exports.addComments = (req,res,next) => {
-    const typeObject = {body:"string",author:"string",review_id:"number"}
+    const typeObject = {body:"string",username:"string",review_id:"number"}
 
     const newComment = req.body;
     newComment.review_id = parseInt(req.params.review_id)
