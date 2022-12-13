@@ -69,7 +69,6 @@ describe('GET /api/reviews',() => {
     })
 })
 
-// error handling for bad path
 describe('error handling for wrong path (only possible error so far)',() => {
     test("GET /api/banana",() => {
         return request(app).get('/api/banana')
@@ -113,6 +112,58 @@ describe("get /api/reviews/:review_id",() => {
 
     })
 
+})
+
+// get api/reviews/:review_id/comments
+describe('GET /api/reviews/:review_id/comments',() => {
+    test("check it gives the correct status, and correct data when given a review_id with existing comments",() => {
+        return request(app).get('/api/reviews/2/comments')
+        .expect(200)
+        .then(({body: {comments}}) => {
+            expect(comments).toHaveLength(3)
+            comments.forEach((comment) => {
+                expect(comment.review_id).toBe(2)
+                expect(comment).toEqual(
+                    expect.objectContaining({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String)
+                    })
+                )
+            })
+        })
+    })
+    test("check comments are sorted with most recent first",() => {
+        return request(app).get('/api/reviews/2/comments')
+        .expect(200)
+        .then(({body: {comments}}) => {
+            expect(comments).toBeSortedBy('created_at',{descending:true})
+            
+        })
+    })
+    test("check that status 200 and empty array when review has no comments",() => {
+        return request(app).get('/api/reviews/1/comments')
+        .expect(200)
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(0)
+        })
+    })
+    test("check that status 400 and error message when review_id is invalid",() => {
+        return request(app).get('/api/reviews/banana/comments')
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review ID is not in correct format"})
+        })
+    })
+    test("check that status 404 and error message when review_id is invalid",() => {
+        return request(app).get('/api/reviews/25/comments')
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review ID is not found in database"})
+        })
+    })
 })
 
 describe('POST /api/reviews/:review_id/comments')
