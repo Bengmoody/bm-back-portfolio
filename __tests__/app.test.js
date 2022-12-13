@@ -99,7 +99,7 @@ describe("get /api/reviews/:review_id",() => {
         return request(app).get('/api/reviews/bananas')
         .expect(400)
         .then(({body}) => {
-            expect(body).toEqual({msg: "review ID is not in correct format"})
+            expect(body).toEqual({msg: "review_id is not in correct format"})
         })
 
     })
@@ -154,7 +154,7 @@ describe('GET /api/reviews/:review_id/comments',() => {
         return request(app).get('/api/reviews/banana/comments')
         .expect(400)
         .then(({body}) => {
-            expect(body).toEqual({msg:"review ID is not in correct format"})
+            expect(body).toEqual({msg:"review_id is not in correct format"})
         })
     })
     test("check that status 404 and error message when review_id is invalid",() => {
@@ -166,4 +166,99 @@ describe('GET /api/reviews/:review_id/comments',() => {
     })
 })
 
-describe('POST /api/reviews/:review_id/comments')
+describe('POST /api/reviews/:review_id/comments',() => {
+    test("responds with a 201 and the data entered into the database if successful",() => {
+        const newComment = {body:"I freaking love this thing", author: "bainesface"}
+        
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(201)
+        .then(({body:{comment}}) => {
+            expect(comment.comment_id).toEqual(7)
+            expect(comment.body).toEqual("I freaking love this thing")
+            expect(comment.author).toEqual("bainesface")
+            expect(comment.review_id).toEqual(2)
+            expect(comment.votes).toEqual(0)
+            expect(typeof comment.created_at).toBe("string")
+        })
+    })
+    test("when review_id not found, responds with a 404 && error message",() => {
+        const newComment = {body:"I freaking love this thing", author: "bainesface"}
+        
+        return request(app).post('/api/reviews/25/comments')
+        .send(newComment)
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review_id is not found in database"})
+        })
+    })
+    test("when review_id not correct, responds with a 400 && error message",() => {
+        const newComment = {body:"I freaking love this thing", author: "bainesface"}
+        
+        return request(app).post('/api/reviews/banana/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review_id is not in correct format"})
+        })
+    })
+    test("can handle errors in body (incorrect type )",() => {
+        const newComment = {body:2, author: "bainesface"}        
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"body is not in correct format"})
+        })
+    })
+    test("can handle errors in body (missing)",() => {
+        const newComment = {author: "bainesface"}
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"body is missing"})
+        })
+    })
+    test("can handle errors in author (incorrect type)",() => {
+        const newComment = {body:"games rule bro", author: 16}        
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"author is not in correct format"})
+        })
+    })
+    test("can handle errors in author (missing)",() => {
+        const newComment = {body:"games rule bro"}
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"author is missing"})
+        })
+    })
+    test("can handle errors in author (correct format but not valid)",() => {
+        const newComment = {body:"games rule bro",author:"bob27"}
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"author is not found in database"})
+        })
+    })
+    test("user tries to hand in extra things, code should ignore them --> 201, correct properties",() => {
+        const newComment = {body:"games rule bro",votes: "I vote yes", author: "bainesface",created_at: new Date(1616874588115)}        
+        return request(app).post('/api/reviews/2/comments')
+        .send(newComment)
+        .expect(201)
+        .then(({body:{comment}}) => {
+            expect(comment.comment_id).toEqual(7)
+            expect(comment.body).toEqual("games rule bro")
+            expect(comment.author).toEqual("bainesface")
+            expect(comment.review_id).toEqual(2)
+            expect(comment.votes).toEqual(0)
+            expect(typeof comment.created_at).toBe("string")
+        })
+    })
+})
