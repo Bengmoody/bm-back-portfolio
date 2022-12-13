@@ -33,10 +33,9 @@ exports.selectReviewsById = (review_id) => {
    })
 }
 
-exports.updateVotesByReviewId = ({inc_votes,review_id}) => {
-    return db.query('UPDATE reviews SET votes = votes + $1 WHERE review_id = $2 RETURNING *;',[inc_votes,review_id])
+exports.updateVotesByReviewId = (body,review_id) => {
+    return db.query('UPDATE reviews SET votes = votes + $1 WHERE review_id = $2 RETURNING *;',[body.inc_votes,review_id])
     .then(({rows}) => {
-        console.log(rows)
         return rows[0]
     })
 }

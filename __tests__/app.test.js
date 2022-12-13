@@ -166,6 +166,7 @@ describe('GET /api/reviews/:review_id/comments',() => {
     })
 })
 
+// PATCH /api/reviews/:review_id
 describe.only("PATCH /api/reviews/:review_id",() => {
     test("if given number, correctly increases number of votes by that and returns 202",() => {
         return request(app).patch('/api/reviews/2')

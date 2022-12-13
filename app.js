@@ -3,6 +3,8 @@ const apiRouter = require('./routers/api-router')
 
 let app = express();
 
+app.use(express.json())
+
 app.use('/api',apiRouter)
 
 
