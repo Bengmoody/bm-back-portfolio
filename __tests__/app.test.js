@@ -262,3 +262,23 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
 })
+
+// GET /api/users
+describe.only("GET /api/users",() => {
+    test("status 200 and valid data",() => {
+        return request(app).get('/api/users')
+        .expect(200)
+        .then(({body:{users}}) => {
+            expect(users).toHaveLength(4)
+            users.forEach((user) => {
+                expect(user).toEqual(
+                    expect.objectContaining({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    })
+                )
+            })
+        })
+    })
+})

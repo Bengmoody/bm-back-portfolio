@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker} = require('../db/utils')
 
@@ -54,5 +54,13 @@ exports.addComments = (req,res,next) => {
     })
     .catch((err) => {
         next(err)
+    })
+}
+
+exports.getUsers = (req,res) => {
+    selectUsers()
+    .then((users) => {
+        console.log(users);
+        res.status(200).send({users})
     })
 }

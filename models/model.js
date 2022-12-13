@@ -41,3 +41,9 @@ exports.insertComments = ({body,username,review_id}) => {
     })
 }
 
+exports.selectUsers = () => {
+    return db.query('SELECT * FROM users;')
+    .then(({rows}) => {
+        return rows;
+    })
+}
