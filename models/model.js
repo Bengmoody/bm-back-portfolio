@@ -12,8 +12,15 @@ exports.selectReviews = () => {
     .then(({rows}) => {
         return rows;
     })
-
 }
+
+exports.selectComments = (review_id) => {
+   return db.query('SELECT * FROM comments WHERE review_id=$1 ORDER BY created_at DESC',[review_id])
+   .then(({rows}) => {
+        return rows;
+   })
+}
+
 
 exports.selectReviewsById = (review_id) => {
    return db.query('SELECT * FROM reviews WHERE review_id = $1',[review_id])
