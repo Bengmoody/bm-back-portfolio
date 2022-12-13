@@ -122,14 +122,14 @@ describe('GET /api/reviews/:review_id/comments',() => {
         .then(({body: {comments}}) => {
             expect(comments).toHaveLength(3)
             comments.forEach((comment) => {
+                expect(comment.review_id).toBe(2)
                 expect(comment).toEqual(
                     expect.objectContaining({
                         comment_id: expect.any(Number),
                         votes: expect.any(Number),
                         created_at: expect.any(String),
                         author: expect.any(String),
-                        body: expect.any(String),
-                        review_id: expect.any(Number)
+                        body: expect.any(String)
                     })
                 )
             })
