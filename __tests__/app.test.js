@@ -326,3 +326,23 @@ describe("GET /api/users",() => {
         })
     })
 })
+
+// GET /api/reviews/:review_id (comment count)
+describe("GET /api/reviews/:review_id (comment count)",() => {
+    test("returned object should now contain comment_count for given review_id",() => {
+        return request(app).get('/api/reviews/2')
+        .expect(200)
+        .then(({body:{review}}) => {
+            expect(review.title).toEqual('Jenga')
+            expect(review.designer).toEqual('Leslie Scott')
+            expect(review.owner).toEqual('philippaclaire9')
+            expect(review.review_body).toEqual('Fiddly fun for all the family')
+            expect(review.review_img_url).toEqual('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
+            expect(review.category).toEqual('dexterity')
+            expect(typeof review.created_at).toEqual("string")
+            expect(review.votes).toEqual(5)
+            expect(review.comment_count).toEqual("3")
+            expect(review.review_id).toEqual(2)
+        })
+    })
+})
