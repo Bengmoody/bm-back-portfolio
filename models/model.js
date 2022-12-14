@@ -50,7 +50,7 @@ exports.selectReviewsById = (review_id) => {
    return db.query('SELECT * FROM reviews WHERE review_id = $1',[review_id])
    .then(({rows}) => {
         if (rows.length === 0) {
-            return Promise.reject({status:404, msg: "review ID is not found in database"})
+            return Promise.reject({status:404, msg: "review_id is not found in database"})
         } else { 
             return rows[0];
         }
@@ -65,3 +65,15 @@ exports.insertComments = ({body,username,review_id}) => {
     })
 }
 
+exports.updateVotesByReviewId = (body,review_id) => {
+    return db.query('UPDATE reviews SET votes = votes + $1 WHERE review_id = $2 RETURNING *;',[body.inc_votes,review_id])
+    .then(({rows}) => {
+        return rows[0]
+    })
+}
+exports.selectUsers = () => {
+    return db.query('SELECT * FROM users;')
+    .then(({rows}) => {
+        return rows;
+    })
+}
