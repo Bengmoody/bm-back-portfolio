@@ -1,21 +1,26 @@
 const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments } = require('../models/model.js')
 const app = require('../app.js')
-const {bodyTypeChecker} = require('../db/utils')
+const {bodyTypeChecker,categoryChecker} = require('../db/utils')
 
 
 exports.getCategories = (req,res) => {
-    selectCategories()
+    selectCategories(req.query)
     .then((categories) => {
         res.status(200).send({categories})
     })
 }
 
-exports.getReviews = (req,res) => {
-    selectReviews(req.queries)
-    .then((reviews) => {
+exports.getReviews = (req,res,next) => {
+    let promises = [categoryChecker(req,res),selectReviews(req.query)]
+    return Promise.all(promises)
+    .then(([msg,reviews]) => {
         res.status(200).send({reviews})
     })
+    .catch((err) => {
+        next(err)
+    })
 }
+
 
 
 exports.getComments = (req,res,next) => {

@@ -264,20 +264,132 @@ describe('POST /api/reviews/:review_id/comments',() => {
 })
 
 // GET /api/reviews (queries)
-describe.only("GET /api/reviews (queries)",() => {
+describe("GET /api/reviews (queries)",() => {
     test("if valid category, returns only reviews with the specified category, 200", () => {
         return request(app).get('/api/reviews?category=dexterity')
         .expect(200)
         .then(({body:{reviews}}) => {
             expect(reviews).toHaveLength(1)
             expect(reviews[0].title).toEqual('Jenga')
+            expect(reviews[0].review_id).toEqual(2)
             expect(reviews[0].designer).toEqual('Leslie Scott')
             expect(reviews[0].owner).toEqual('philippaclaire9')
             expect(reviews[0].review_img_url).toEqual('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
-            expect(reviews[0].review_body).toEqual('Fiddly fun for all the family')
             expect(reviews[0].category).toEqual('dexterity')
             expect(reviews[0].votes).toEqual(5)
+            expect(reviews[0].comment_count).toEqual("3")
             expect(typeof reviews[0].created_at).toEqual('string')
+        })
+    })
+    test("valid category with no reviews returns empty array", () => {
+        return request(app).get('/api/reviews?category=children%27s+games')
+        .expect(200)
+        .then(({body:{reviews}}) => {
+           expect(reviews).toHaveLength(0)
+        })
+    })
+    test("blocks queries with invalid categories (not in database) and returns 404, error message", () => {
+        return request(app).get('/api/reviews?category=ps5')
+        .expect(404)
+        .then(({body}) => {
+           expect(body).toEqual({msg:"category not found in database"})
+        })
+    })
+    test("will accept valid sort_by argument and sort database in correct fashion", () => {
+        return request(app).get('/api/reviews?sort_by=title')
+        .expect(200)
+        .then(({body:{reviews}}) => {
+           expect(reviews).toBeSortedBy('title',{descending:true})
+           expect(reviews).toHaveLength(13)
+           reviews.forEach((review) => {
+            expect(review).toEqual(
+                expect.objectContaining({
+                    title: expect.any(String),
+                    designer: expect.any(String),
+                    owner: expect.any(String),
+                    review_img_url: expect.any(String),
+                    category: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    review_id: expect.any(Number),
+                    comment_count: expect.any(String)
+                })
+            )
+           })
+        })
+    })
+    test("sorting by column not in table will return 400 and helpful error message", () => {
+        return request(app).get('/api/reviews?sort_by=banana')
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"sort_by column not found in database"})
+        })
+    })
+    test("accepts order query, sorts data appropriately into DESC or ASC", () => {
+        return request(app).get('/api/reviews?order=asc')
+        .expect(200)
+        .then(({body:{reviews}}) => {
+            expect(reviews).toBeSortedBy("created_at",{ascending:true})
+        })
+    })
+    test("incorrect order value results in 400 and useful error message", () => {
+        return request(app).get('/api/reviews?order=banana')
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "order by query invalid"})
+        })
+    })
+    test("queries not on the list get ignored and result in default behaviour, 200", () => {
+        return request(app).get('/api/reviews?banana=true')
+        .expect(200)
+        .then(({body:{reviews}}) => {
+            expect(reviews).toHaveLength(13)
+            expect(reviews).toBeSortedBy("created_at",{descending:true})
+            reviews.forEach((review) => {
+                expect(review).toEqual(
+                    expect.objectContaining({
+                        title: expect.any(String),
+                        designer: expect.any(String),
+                        owner: expect.any(String),
+                        review_img_url: expect.any(String),
+                        category: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        review_id: expect.any(Number),
+                        comment_count: expect.any(String)
+                    })
+                )
+            })
+        })
+    })
+    test("can handle multiple valid queries simultaneously and give correct result", () => {
+        return request(app).get('/api/reviews?category=social+deduction&sort_by=owner&order=asc')
+        .expect(200)
+        .then(({body:{reviews}}) => {
+            expect(reviews).toHaveLength(11)
+            expect(reviews).toBeSortedBy("owner",{ascending:true})
+            reviews.forEach((review) => {
+                expect(review).toEqual(
+                    expect.objectContaining({
+                        title: expect.any(String),
+                        designer: expect.any(String),
+                        owner: expect.any(String),
+                        review_img_url: expect.any(String),
+                        category: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        review_id: expect.any(Number),
+                        comment_count: expect.any(String)
+                    })
+                )
+            })
+        })
+    })
+    test("if one part of compound query is incorrect, whole query is rejected with appropriate error message", () => {
+        return request(app).get('/api/reviews?category=social+deduction&sort_by=banana&order=asc')
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "sort_by column not found in database"})
         })
     })
 })
