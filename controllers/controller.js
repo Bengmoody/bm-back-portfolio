@@ -86,7 +86,6 @@ exports.changeVotesByReviewId = (req,res,next) => {
 exports.getUsers = (req,res) => {
     selectUsers()
     .then((users) => {
-        console.log(users);
         res.status(200).send({users})
     })
 }
