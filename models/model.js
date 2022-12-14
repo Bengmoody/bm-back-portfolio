@@ -7,8 +7,16 @@ exports.selectCategories = () => {
     })
 }
 
-exports.selectReviews = () => {
-    return db.query('SELECT owner,title,review_id,category,review_img_url,reviews.created_at,reviews.votes,designer,COUNT(comments.comment_id) AS comment_count FROM reviews LEFT JOIN comments USING (review_id) GROUP BY reviews.review_id ORDER BY created_at DESC;')
+exports.selectReviews = ({category}) => {
+    let sqlStr = 'SELECT owner,title,review_id,category,review_img_url,reviews.created_at,reviews.votes,designer,COUNT(comments.comment_id) AS comment_count FROM reviews LEFT JOIN comments USING (review_id)'
+    let params = []
+
+    if (category !== undefined) {
+        sqlStr += ' WHERE category = $1'
+        params.push(category)
+    }
+    sqlStr += ' GROUP BY reviews.review_id ORDER BY created_at DESC;'
+    return db.query(sqlStr,params)
     .then(({rows}) => {
         return rows;
     })

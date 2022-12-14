@@ -262,3 +262,22 @@ describe('POST /api/reviews/:review_id/comments',() => {
         })
     })
 })
+
+// GET /api/reviews (queries)
+describe.only("GET /api/reviews (queries)",() => {
+    test("if valid category, returns only reviews with the specified category, 200", () => {
+        return request(app).get('/api/reviews?category=dexterity')
+        .expect(200)
+        .then(({body:{reviews}}) => {
+            expect(reviews).toHaveLength(1)
+            expect(reviews[0].title).toEqual('Jenga')
+            expect(reviews[0].designer).toEqual('Leslie Scott')
+            expect(reviews[0].owner).toEqual('philippaclaire9')
+            expect(reviews[0].review_img_url).toEqual('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
+            expect(reviews[0].review_body).toEqual('Fiddly fun for all the family')
+            expect(reviews[0].category).toEqual('dexterity')
+            expect(reviews[0].votes).toEqual(5)
+            expect(typeof reviews[0].created_at).toEqual('string')
+        })
+    })
+})

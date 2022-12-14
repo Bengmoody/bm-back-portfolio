@@ -11,7 +11,7 @@ exports.getCategories = (req,res) => {
 }
 
 exports.getReviews = (req,res) => {
-    selectReviews()
+    selectReviews(req.queries)
     .then((reviews) => {
         res.status(200).send({reviews})
     })
