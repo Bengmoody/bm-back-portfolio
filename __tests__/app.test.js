@@ -453,7 +453,7 @@ describe("GET /api/reviews (queries)",() => {
         return request(app).get('/api/reviews?category=social+deduction&sort_by=banana&order=asc')
         .expect(400)
         .then(({body}) => {
-            expect(body).toEqual({msg: "sort_by column not found in database"})
+            expect(body).toEqual({msg: "invalid query"})
         })
     })
 })
