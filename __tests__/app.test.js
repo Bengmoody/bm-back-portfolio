@@ -264,7 +264,7 @@ describe('POST /api/reviews/:review_id/comments',() => {
 })
 
 // GET /api/users
-describe.only("GET /api/users",() => {
+describe("GET /api/users",() => {
     test("status 200 and valid data",() => {
         return request(app).get('/api/users')
         .expect(200)
