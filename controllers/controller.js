@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments,updateVotesByReviewId } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker} = require('../db/utils')
 
@@ -80,5 +80,12 @@ exports.changeVotesByReviewId = (req,res,next) => {
             err.prop_name = "review_id"
         }
         next(err)
+    })
+}
+
+exports.getUsers = (req,res) => {
+    selectUsers()
+    .then((users) => {
+        res.status(200).send({users})
     })
 }
