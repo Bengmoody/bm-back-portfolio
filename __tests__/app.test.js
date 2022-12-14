@@ -349,7 +349,7 @@ describe("GET /api/reviews (queries)",() => {
         return request(app).get('/api/reviews?category=children%27s+games')
         .expect(200)
         .then(({body:{reviews}}) => {
-           expect(reviews).toHaveLength(0)
+           expect(reviews).toEqual([])
         })
     })
     test("blocks queries with invalid categories (not in database) and returns 404, error message", () => {
@@ -386,7 +386,7 @@ describe("GET /api/reviews (queries)",() => {
         return request(app).get('/api/reviews?sort_by=banana')
         .expect(400)
         .then(({body}) => {
-            expect(body).toEqual({msg:"sort_by column not found in database"})
+            expect(body).toEqual({msg:"invalid query"})
         })
     })
     test("accepts order query, sorts data appropriately into DESC or ASC", () => {
@@ -433,13 +433,13 @@ describe("GET /api/reviews (queries)",() => {
             expect(reviews).toHaveLength(11)
             expect(reviews).toBeSortedBy("owner",{ascending:true})
             reviews.forEach((review) => {
+                expect(review.category).toBe("social deduction")
                 expect(review).toEqual(
                     expect.objectContaining({
                         title: expect.any(String),
                         designer: expect.any(String),
                         owner: expect.any(String),
                         review_img_url: expect.any(String),
-                        category: expect.any(String),
                         created_at: expect.any(String),
                         votes: expect.any(Number),
                         review_id: expect.any(Number),

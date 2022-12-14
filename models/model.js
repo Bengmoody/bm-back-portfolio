@@ -19,7 +19,7 @@ exports.selectReviews = ({category, sort_by="created_at",order="DESC"}) => {
     const acceptedSorts = ["owner","title","review_id","review_img_url","votes","designer","comment_count","created_at"]
     const acceptedOrders = ["DESC","ASC"]
     if (!acceptedSorts.includes(sort_by)) {
-        return Promise.reject({status:400,msg:"sort_by column not found in database"})
+        return Promise.reject({status:400,msg:"invalid query"})
     }
     if (!acceptedOrders.includes(order.toUpperCase())) {
         return Promise.reject({status:400,msg:"order by query invalid"})
