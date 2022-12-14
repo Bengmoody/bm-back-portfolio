@@ -44,7 +44,6 @@ exports.getReviewsById = (req,res,next) => {
     })
     .catch((err) => {
         err.prop_name = "review_id"
-
         next(err)
     })
 }

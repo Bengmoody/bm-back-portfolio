@@ -47,7 +47,7 @@ exports.selectComments = (review_id) => {
 
 
 exports.selectReviewsById = (review_id) => {
-   return db.query('SELECT * FROM reviews WHERE review_id = $1',[review_id])
+   return db.query('SELECT title,designer,owner,review_body,review_id,review_img_url,category,reviews.created_at,reviews.votes,COUNT(comments.comment_id) AS comment_count FROM reviews LEFT JOIN comments USING (review_id) WHERE review_id = $1 GROUP BY reviews.review_id',[review_id])
    .then(({rows}) => {
         if (rows.length === 0) {
             return Promise.reject({status:404, msg: "review_id is not found in database"})
