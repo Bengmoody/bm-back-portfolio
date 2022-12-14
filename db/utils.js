@@ -1,4 +1,4 @@
-
+let { selectCategories } = require('../models/model')
 
 exports.bodyTypeChecker = (body,typeObject) => {
     const typeCheckPromise = new Promise((resolve,reject) => {
@@ -27,4 +27,23 @@ exports.bodyTypeChecker = (body,typeObject) => {
         }
     })
     return typeCheckPromise;
+}
+
+exports.categoryChecker = (req,res) => {
+    
+    const categoryChecker = new Promise((resolve,reject) => {
+        if (req.query.category === undefined) {
+            resolve("no category")
+        } else {
+            selectCategories(req.query)
+            .then((categories) => {
+                if (categories.length === 0) {
+                    reject({status:404,msg:"category not found in database"})
+                } else {
+                    resolve("success")
+                }
+            })    
+        }
+    })
+    return categoryChecker;
 }
