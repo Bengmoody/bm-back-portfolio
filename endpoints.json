@@ -15,20 +15,98 @@
     }
   },
   "GET /api/reviews": {
-    "description": "serves an array of all reviews",
+    "description": "serves an array of all reviews as objects",
     "queries": ["category", "sort_by", "order"],
+    "queryDetails": {},
     "exampleResponse": {
       "reviews": [
         {
+          "review_id": 5,
           "title": "One Night Ultimate Werewolf",
           "designer": "Akihisa Okui",
           "owner": "happyamy2016",
           "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
           "category": "hidden-roles",
-          "created_at": 1610964101251,
-          "votes": 5
+          "created_at": "1610964101251",
+          "votes": 5,
+          "comment_count": "3"
+        },
+        {
+          "review_id": 6,
+          "title": "Ultimate Dog Adventure",
+          "designer": "Bob Johnson",
+          "owner": "bobby_j2k18",
+          "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+          "category": "different_category",
+          "created_at": "1610964101251",
+          "votes": 0,
+          "comment_count": "0"
         }
       ]
     }
-  }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all registered users as objects",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "dav3rid",
+          "name": "dave",
+          "avatar_url":
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+        }
+      ]
+    }
+  },
+  "GET /api/reviews/:review_id": {
+    "description": "serves an object matching the review_id specified in the URL",
+    "queries": [],
+    "parameters": ":review_id - must be an integer matching an existing review_id",
+    "example URL input": "/api/reviews/2",
+    "exampleResponse": {
+      "review": [
+        {
+          "review_id": 2,
+          "title": "Ultimate Dog Adventure",
+          "designer": "Bob Johnson",
+          "review_body": "fun for all the family",
+          "owner": "bobby_j2k18",
+          "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+          "category": "different_category",
+          "created_at": "1610964101251",
+          "votes": 0,
+          "comment_count": "2"
+        }
+      ]
+    }
+  },
+  "GET /api/reviews/:review_id/comments": {
+    "description": "serves an array containing each comment linked to the review_id specified in the URL, with each comment as an object",
+    "queries": [],
+    "parameters": ":review_id - must be an integer matching an existing review_id",
+    "exampleUrlInput": "/api/reviews/2/comments",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "body": "I loved this game too!",
+          "votes": 16,
+          "author": 'bainesface',
+          review_id: 2,
+          created_at: new Date(1511354613389),
+        },
+        {
+          body: 'My dog loved this game too!',
+          votes: 13,
+          author: 'mallionaire',
+          review_id: 3,
+          created_at: new Date(1610964545410),
+        }
+      ]
+    }
+  
+  },
+  "POST /api/reviews/:review_id/comments": {},
+  "PATCH /api/reviews/:review_id": {},
 }
