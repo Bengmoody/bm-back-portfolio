@@ -530,3 +530,26 @@ describe("DELETE /api/comments/:comment_id",() => {
         })
     })
 })
+
+// GET api
+
+describe("GET /api",() => {
+    test("should return parsable data which (after parsing) is in JS object form, has properties which are objects and each property object has truthy values",() => {
+        return request(app).get("/api")
+        .expect(200)
+        .then(({body:{endpoints}}) => {
+            let parsedEndpoints = JSON.parse(endpoints)
+            expect(typeof parsedEndpoints).toBe("object")
+            expect(Object.keys(parsedEndpoints).length).not.toBe(0)
+            for (let key in parsedEndpoints) {
+                expect(typeof parsedEndpoints[key]).toBe("object")
+                let innerKeys = Object.keys(parsedEndpoints[key]);
+                expect(innerKeys.length).not.toBe(0)
+                innerKeys.forEach((innerKey) => {
+                    expect(parsedEndpoints[key][innerKey] !== undefined).toBe(true)
+                    expect(parsedEndpoints[key][innerKey] !== null).toBe(true)
+                })
+            }
+        })
+    })
+})
