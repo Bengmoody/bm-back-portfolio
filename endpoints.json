@@ -92,21 +92,64 @@
           "comment_id": 1,
           "body": "I loved this game too!",
           "votes": 16,
-          "author": 'bainesface',
-          review_id: 2,
-          created_at: new Date(1511354613389),
+          "author": "someone",
+          "review_id": 2,
+          "created_at": "2017-11-22T12:36:03.389Z"
         },
         {
-          body: 'My dog loved this game too!',
-          votes: 13,
-          author: 'mallionaire',
-          review_id: 3,
-          created_at: new Date(1610964545410),
+          "comment_id": 5,
+          "body": "My dog loved this game too!",
+          "votes": 13,
+          "author": "someone else",
+          "review_id": 2,
+          "created_at": "2018-09-22T12:36:03.389Z"
         }
       ]
     }
-  
   },
-  "POST /api/reviews/:review_id/comments": {},
-  "PATCH /api/reviews/:review_id": {},
+  "POST /api/reviews/:review_id/comments": {
+    "description": "inserts a comment into the database, linked to the review_id specified in the path. as per the user submitted data object.  Responds with the inserted object, proving insertion",
+    "queries": [],
+    "parameters": ":review_id - must be an integer matching an existing review_id",
+    "exampleUrlInput": "/api/reviews/2/comments",
+    "exampleInputObject": {
+      "body": "this game is brilliant",
+      "username": "systemUser12"
+    },
+    "exampleResponse": {
+      "comment": 
+        {
+          "comment_id": 10,
+          "body": "this game is brilliant",
+          "votes": 16,
+          "author": "systemUser12",
+          "review_id": 2,
+          "created_at": "2017-11-22T12:36:03.389Z"
+        }
+    }
+  },
+  "PATCH /api/reviews/:review_id": {
+    "description": "updates the votes number of a review record in the database, linked to the review_id specified in the path. as per the user submitted data object.  Responds with the updated review object, proving update",
+    "queries": [],
+    "parameters": ":review_id - must be an integer matching an existing review_id",
+    "exampleUrlInput": "/api/reviews/2",
+    "exampleInputObject": {
+      "inc_votes": 100
+    },
+    "exampleResponse": {
+      "review": 
+        {
+          "review_id": 10,
+          "title": "amazing game 3",
+          "designer": "Bob Johnson",
+          "owner": "Bob Johnson",
+          "review_body": "fun for all the family",
+          "votes": 116,
+          "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+          "category": "war game",
+          "created_at": "2017-11-22T12:36:03.389Z",
+          "comment_count": "3"
+        }
+    }
+  }
 }

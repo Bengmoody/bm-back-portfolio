@@ -1,6 +1,7 @@
 const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker,categoryChecker} = require('../db/utils')
+const fs = require('fs/promises')
 
 
 exports.getCategories = (req,res) => {
@@ -102,5 +103,17 @@ exports.removeComment = (req,res,next) => {
     .catch((err) => {
         err.prop_name = "comment_id"
         next(err);
+    })
+}
+
+exports.fetchJson = (req,res,next) => {
+    fs.readFile(`${__dirname}/../endpoints.json`,"utf-8")
+    .then((endpoints) => {
+        res.status(200).send({endpoints})
+    })
+    .catch((err) => {
+        err.status = 404;
+        err.msg = "endpoints.json file not found in main directory";
+        next(err)
     })
 }
