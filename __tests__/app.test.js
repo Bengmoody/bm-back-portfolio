@@ -574,10 +574,10 @@ describe("GET /api/users/:username",() => {
 
 // PATCH /api/comments/:comment_id
 describe("PATCH /api/comments/:comment_id",() => {
-    test("correct comment_id and request body results in 200 and updated comment being returned",() => {
+    test("correct comment_id and request body results in 202 and updated comment being returned",() => {
         return request(app).patch('/api/comments/1')
         .send({inc_votes: 100})
-        .expect(200)
+        .expect(202)
         .then(({body:{comment}}) => {
             expect(comment.comment_id).toEqual(1)
             expect(comment.body).toEqual("I loved this game too!")
@@ -637,4 +637,26 @@ describe("PATCH /api/comments/:comment_id",() => {
             expect(typeof comment.created_at).toBe("string")
         })
     })
+})
+
+// POST /api/reviews
+describe.only("POST /api/reviews",() => {
+    test("check if req.body valid, gives status 201 and return with created object",() => {
+        return request(app).post('/api/reviews')
+        .send({owner: "mallionaire",designer:"bob",review_body:"this game is bloody amazing!", category:"social deduction", title:"new cluedo is amazing"})
+        .expect(201)
+        .then(({body:{review}}) => {
+            expect(review.review_id).toBe(14)
+            expect(review.votes).toBe(0)
+            expect(typeof review.created_at).toBe("string")
+            expect(review.comment_count).toBe("0")
+            expect(review.owner).toBe("mallionaire")
+            expect(review.designer).toBe("bob")
+            expect(review.title).toBe("new cluedo is amazing")
+            expect(review.review_body).toBe("this game is bloody amazing!")
+            expect(review.category).toBe("social deduction")
+            expect(review.review_img_url).toBe("https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg")
+        })
+    })
+    
 })

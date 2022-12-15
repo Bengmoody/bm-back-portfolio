@@ -109,3 +109,12 @@ exports.updateVotesByCommentId = ({inc_votes, comment_id}) => {
         }
     })
 }
+
+exports.insertReview = ({owner,title,review_body,designer,category}) => {
+    let inputArr = [owner,title,review_body,designer,category]
+    return db.query("INSERT INTO reviews (owner,title,review_body,designer,category) VALUES ($1,$2,$3,$4,$5) RETURNING review_id;",inputArr)
+    .then(({rows}) => {
+        return rows[0].review_id;        
+    })
+
+}

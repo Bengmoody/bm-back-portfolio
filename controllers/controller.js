@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername, updateVotesByCommentId } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername, updateVotesByCommentId, insertReview } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker,categoryChecker} = require('../db/utils')
 const fs = require('fs/promises')
@@ -141,10 +141,22 @@ exports.changeVotesByCommentId = (req,res,next) => {
         return updateVotesByCommentId(body)
     })
     .then((comment) => {
-        res.status(200).send({comment})
+        res.status(202).send({comment})
     })
     .catch((err) => {
         err.prop_name = "comment_id"
         next(err)
     })
+}
+
+exports.addReview = (req,res) => {
+    let {body} = req
+    insertReview(body)
+    .then((review_id) => {
+        return selectReviewsById(review_id)
+    })
+    .then((review) => {
+        res.status(201).send({review})
+    })
+
 }
