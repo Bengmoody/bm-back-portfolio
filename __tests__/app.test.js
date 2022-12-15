@@ -497,3 +497,36 @@ describe("GET /api/reviews/:review_id (comment count)",() => {
         })
     })
 })
+
+// DELETE /api/comments/:comment_id
+describe("DELETE /api/comments/:comment_id",() => {
+    test("if given valid comment_id, status 204, return nothing - check that number of comments is reduced",() => {
+        return request(app).get('/api/reviews/2/comments')
+        .expect(200)
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(3)
+            return request(app).delete('/api/comments/5')
+            .expect(204)
+        })
+        .then(() => {
+            return request(app).get('/api/reviews/2/comments')
+        })
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(2)
+        })
+    })
+    test("if given invalid comment_id return 400 and meaningful error message",() => {
+        return request(app).delete('/api/comments/banana')
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"comment_id is not in correct format"})
+        })
+    })
+    test("if given valid but non-existent comment_id return 404 and meaningful error message",() => {
+        return request(app).delete('/api/comments/27')
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"comment_id not found in database"})
+        })
+    })
+})
