@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker,categoryChecker} = require('../db/utils')
 const fs = require('fs/promises')
@@ -108,7 +108,10 @@ exports.removeComment = (req,res,next) => {
 
 exports.fetchJson = (req,res,next) => {
     fs.readFile(`${__dirname}/../endpoints.json`,"utf-8")
-    .then((endpoints) => {
+    .then((data) => {
+        let cleanStr = data.split("\n").join("")
+        let parsedData = JSON.parse(cleanStr)
+        let endpoints = JSON.stringify(parsedData)
         res.status(200).send({endpoints})
     })
     .catch((err) => {
@@ -116,4 +119,16 @@ exports.fetchJson = (req,res,next) => {
         err.msg = "endpoints.json file not found in main directory";
         next(err)
     })
+}
+
+exports.getUserByUsername = (req,res,next) => {
+    selectUserByUsername(req.params.username)
+    .then((user) => {
+        res.status(200).send({user})
+    })
+    .catch((err) => {
+        err.prop_name = "username"
+        next(err)
+    })
+
 }
