@@ -553,3 +553,21 @@ describe("GET /api",() => {
         })
     })
 })
+
+// GET /api/users/:username
+describe("GET /api/users/:username",() => {
+    test("if url contains a valid, existent username, should get the details of that user and return 200",() => {
+        return request(app).get('/api/users/mallionaire')
+        .expect(200)
+        .then(({body:{user}}) => {
+            expect(user).toEqual({username: "mallionaire",name: "haz", avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'})
+        })
+    })
+    test("if url contains a username not in database, should get 404 and appropriate error message",() => {
+        return request(app).get('/api/users/3')
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"username not found in database"})
+        })
+    })
+})
