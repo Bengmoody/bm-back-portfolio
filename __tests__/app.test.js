@@ -571,3 +571,70 @@ describe("GET /api/users/:username",() => {
         })
     })
 })
+
+// PATCH /api/comments/:comment_id
+describe("PATCH /api/comments/:comment_id",() => {
+    test("correct comment_id and request body results in 200 and updated comment being returned",() => {
+        return request(app).patch('/api/comments/1')
+        .send({inc_votes: 100})
+        .expect(200)
+        .then(({body:{comment}}) => {
+            expect(comment.comment_id).toEqual(1)
+            expect(comment.body).toEqual("I loved this game too!")
+            expect(comment.author).toEqual("bainesface")
+            expect(comment.review_id).toEqual(2)
+            expect(comment.votes).toEqual(116)
+            expect(typeof comment.created_at).toBe("string")
+        })
+    })
+    test("if req.body has incorrect format, gives user 400 and appropriate error",() => {
+        return request(app).patch('/api/comments/1')
+        .send({inc_votes: "banana"})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "inc_votes is not in correct format" })
+        })
+    })
+    test("if req.body has incorrect format, gives user 400 and appropriate error",() => {
+        return request(app).patch('/api/comments/banana')
+        .send({inc_votes: 5})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "comment_id is not in correct format" })
+        })
+    })
+    test("if comment_id is valid/non-existent, gives 404 and helpful msg",() => {
+        return request(app).patch('/api/comments/25')
+        .send({inc_votes: 5})
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "comment_id not found in database" })
+        })
+    })
+    test("unwanted body components have no effect on running of database",() => {
+        return request(app).patch('/api/comments/1')
+        .send({inc_votes: 100,attack:"DROP DATABASE project_database;"})
+        .expect(200)
+        .then(({body:{comment}}) => {
+            expect(comment.comment_id).toEqual(1)
+            expect(comment.body).toEqual("I loved this game too!")
+            expect(comment.author).toEqual("bainesface")
+            expect(comment.review_id).toEqual(2)
+            expect(comment.votes).toEqual(116)
+            expect(typeof comment.created_at).toBe("string")
+        })
+    })
+    test("check negative number works",() => {
+        return request(app).patch('/api/comments/1')
+        .send({inc_votes: -15})
+        .expect(200)
+        .then(({body:{comment}}) => {
+            expect(comment.comment_id).toEqual(1)
+            expect(comment.body).toEqual("I loved this game too!")
+            expect(comment.author).toEqual("bainesface")
+            expect(comment.review_id).toEqual(2)
+            expect(comment.votes).toEqual(1)
+            expect(typeof comment.created_at).toBe("string")
+        })
+    })
+})

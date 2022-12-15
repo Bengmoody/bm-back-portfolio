@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername, updateVotesByCommentId } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker,categoryChecker} = require('../db/utils')
 const fs = require('fs/promises')
@@ -109,8 +109,7 @@ exports.removeComment = (req,res,next) => {
 exports.fetchJson = (req,res,next) => {
     fs.readFile(`${__dirname}/../endpoints.json`,"utf-8")
     .then((data) => {
-        let cleanStr = data.split("\n").join("")
-        let parsedData = JSON.parse(cleanStr)
+        let parsedData = JSON.parse(data)
         let endpoints = JSON.stringify(parsedData)
         res.status(200).send({endpoints})
     })
@@ -131,4 +130,21 @@ exports.getUserByUsername = (req,res,next) => {
         next(err)
     })
 
+}
+
+exports.changeVotesByCommentId = (req,res,next) => {
+    let typeObj = { inc_votes: "number", comment_id: "number" }
+    let body = req.body
+    body.comment_id = parseInt(req.params.comment_id)
+    bodyTypeChecker(body,typeObj)
+    .then((msg) => {
+        return updateVotesByCommentId(body)
+    })
+    .then((comment) => {
+        res.status(200).send({comment})
+    })
+    .catch((err) => {
+        err.prop_name = "comment_id"
+        next(err)
+    })
 }
