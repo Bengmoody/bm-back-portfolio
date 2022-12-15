@@ -7,6 +7,10 @@ const reviewsRouter = require('./reviews-router')
 
 apiRouter.get('/categories',getCategories)
 apiRouter.get('/users',getUsers)
+apiRouter.get('/secret',(req,res) => {
+    res.status(200).send({msg:"I love you Vicky and Aaron"})
+})
+
 
 apiRouter.use('/reviews',reviewsRouter)
 
