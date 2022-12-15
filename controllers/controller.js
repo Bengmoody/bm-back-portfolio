@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker,categoryChecker} = require('../db/utils')
 
@@ -91,5 +91,16 @@ exports.getUsers = (req,res) => {
     selectUsers()
     .then((users) => {
         res.status(200).send({users})
+    })
+}
+
+exports.removeComment = (req,res,next) => {
+    deleteComment(req.params.comment_id)
+    .then(() => {
+        res.status(204).send()
+    })
+    .catch((err) => {
+        err.prop_name = "comment_id"
+        next(err);
     })
 }
