@@ -109,8 +109,7 @@ exports.removeComment = (req,res,next) => {
 exports.fetchJson = (req,res,next) => {
     fs.readFile(`${__dirname}/../endpoints.json`,"utf-8")
     .then((data) => {
-        let parsedData = JSON.parse(data)
-        let endpoints = JSON.stringify(parsedData)
+        let endpoints = JSON.parse(data)
         res.status(200).send({endpoints})
     })
     .catch((err) => {
@@ -149,14 +148,21 @@ exports.changeVotesByCommentId = (req,res,next) => {
     })
 }
 
-exports.addReview = (req,res) => {
+exports.addReview = (req,res,next) => {
     let {body} = req
-    insertReview(body)
+    let typeObject = { owner: "string", designer: "string",review_body:"string",category:"string", title:"string" }
+    bodyTypeChecker(body,typeObject)
+    .then((msg) => {
+        return insertReview(body)
+    })
     .then((review_id) => {
         return selectReviewsById(review_id)
     })
     .then((review) => {
         res.status(201).send({review})
+    })
+    .catch((err) => {
+        next(err)
     })
 
 }
