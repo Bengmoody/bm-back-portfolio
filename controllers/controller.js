@@ -1,6 +1,6 @@
 const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername, updateVotesByCommentId, insertReview } = require('../models/model.js')
 const app = require('../app.js')
-const {bodyTypeChecker,categoryChecker} = require('../db/utils')
+const {bodyTypeChecker,categoryChecker, validateAndPaginate} = require('../db/utils')
 const fs = require('fs/promises')
 
 
@@ -15,7 +15,11 @@ exports.getReviews = (req,res,next) => {
     let promises = [categoryChecker(req,res),selectReviews(req.query)]
     return Promise.all(promises)
     .then(([msg,reviews]) => {
-        res.status(200).send({reviews})
+        return validateAndPaginate(reviews,req)
+
+    })
+    .then(({results,total_count}) => {
+        res.status(200).send({reviews:results,total_count})
     })
     .catch((err) => {
         next(err)

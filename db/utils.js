@@ -47,3 +47,41 @@ exports.categoryChecker = (req,res) => {
     })
     return categoryChecker;
 }
+
+exports.validateAndPaginate = (results,req) => {
+    const validateAndPaginatePromise = new Promise((resolve,reject) => {
+        if (req.query.limit === undefined) {
+            req.query.limit = 10;
+        }
+        if (Number.isNaN(parseInt(req.query.p)) && req.query.p !== undefined) {
+            reject(({status:400,msg: "pages query is not in correct format"}))
+        }
+        if (Number.isNaN(parseInt(req.query.limit))) {
+            reject(({status:400,msg: "limit query is not in correct format"}))
+        }
+    
+        let resultsCopy = [...results]
+        let totalResults = resultsCopy.length
+        if (req.query.p !== undefined) {
+            let pages = []
+            while (resultsCopy.length>=req.query.limit) {
+                pages.push(resultsCopy.splice(0,req.query.limit))    
+            }
+            if (resultsCopy.length > 0) {
+                pages.push(resultsCopy)
+            }
+            if (pages[parseInt(req.query.p)-1] === undefined) {
+                reject({status:400,msg: "missing page requested"})
+            } else {
+                resolve({results:pages[parseInt(req.query.p)-1],total_count:totalResults})
+            }
+        } else if (req.query.p === undefined) {
+            if (parseInt(req.query.limit) >= totalResults) {
+                resolve({results:resultsCopy,total_count:totalResults})
+            } else {
+                resolve({results:resultsCopy.slice(0,req.query.limit),total_count:totalResults})
+            }
+        }
+    })
+    return validateAndPaginatePromise;
+}
