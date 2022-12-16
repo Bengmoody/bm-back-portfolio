@@ -534,20 +534,19 @@ describe("DELETE /api/comments/:comment_id",() => {
 // GET api
 
 describe("GET /api",() => {
-    test("should return parsable data which (after parsing) is in JS object form, has properties which are objects and each property object has truthy values",() => {
+    test("should return parsable data which (after parsing (done automatically by supertest)) is in JS object form, has properties which are objects and each property object has truthy values",() => {
         return request(app).get("/api")
         .expect(200)
         .then(({body:{endpoints}}) => {
-            let parsedEndpoints = JSON.parse(endpoints)
-            expect(typeof parsedEndpoints).toBe("object")
-            expect(Object.keys(parsedEndpoints).length).not.toBe(0)
-            for (let key in parsedEndpoints) {
-                expect(typeof parsedEndpoints[key]).toBe("object")
-                let innerKeys = Object.keys(parsedEndpoints[key]);
+            expect(typeof endpoints).toBe("object")
+            expect(Object.keys(endpoints).length).not.toBe(0)
+            for (let key in endpoints) {
+                expect(typeof endpoints[key]).toBe("object")
+                let innerKeys = Object.keys(endpoints[key]);
                 expect(innerKeys.length).not.toBe(0)
                 innerKeys.forEach((innerKey) => {
-                    expect(parsedEndpoints[key][innerKey] !== undefined).toBe(true)
-                    expect(parsedEndpoints[key][innerKey] !== null).toBe(true)
+                    expect(endpoints[key][innerKey] !== undefined).toBe(true)
+                    expect(endpoints[key][innerKey] !== null).toBe(true)
                 })
             }
         })
@@ -574,10 +573,10 @@ describe("GET /api/users/:username",() => {
 
 // PATCH /api/comments/:comment_id
 describe("PATCH /api/comments/:comment_id",() => {
-    test("correct comment_id and request body results in 200 and updated comment being returned",() => {
+    test("correct comment_id and request body results in 202 and updated comment being returned",() => {
         return request(app).patch('/api/comments/1')
         .send({inc_votes: 100})
-        .expect(200)
+        .expect(202)
         .then(({body:{comment}}) => {
             expect(comment.comment_id).toEqual(1)
             expect(comment.body).toEqual("I loved this game too!")
@@ -614,7 +613,7 @@ describe("PATCH /api/comments/:comment_id",() => {
     test("unwanted body components have no effect on running of database",() => {
         return request(app).patch('/api/comments/1')
         .send({inc_votes: 100,attack:"DROP DATABASE project_database;"})
-        .expect(200)
+        .expect(202)
         .then(({body:{comment}}) => {
             expect(comment.comment_id).toEqual(1)
             expect(comment.body).toEqual("I loved this game too!")
@@ -627,7 +626,7 @@ describe("PATCH /api/comments/:comment_id",() => {
     test("check negative number works",() => {
         return request(app).patch('/api/comments/1')
         .send({inc_votes: -15})
-        .expect(200)
+        .expect(202)
         .then(({body:{comment}}) => {
             expect(comment.comment_id).toEqual(1)
             expect(comment.body).toEqual("I loved this game too!")
@@ -637,4 +636,66 @@ describe("PATCH /api/comments/:comment_id",() => {
             expect(typeof comment.created_at).toBe("string")
         })
     })
+})
+
+// POST /api/reviews
+describe("POST /api/reviews",() => {
+    test("check if req.body valid, gives status 201 and return with created object",() => {
+        return request(app).post('/api/reviews')
+        .send({owner: "mallionaire",designer:"bob",review_body:"this game is bloody amazing!", category:"social deduction", title:"new cluedo is amazing"})
+        .expect(201)
+        .then(({body:{review}}) => {
+            expect(review.review_id).toBe(14)
+            expect(review.votes).toBe(0)
+            expect(typeof review.created_at).toBe("string")
+            expect(review.comment_count).toBe("0")
+            expect(review.owner).toBe("mallionaire")
+            expect(review.designer).toBe("bob")
+            expect(review.title).toBe("new cluedo is amazing")
+            expect(review.review_body).toBe("this game is bloody amazing!")
+            expect(review.category).toBe("social deduction")
+            expect(review.review_img_url).toBe("https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg")
+        })
+    })
+    test("if the other is not found in the database, correctly handles SQL error with a 404 and more meaningful msg",() => {
+        return request(app).post("/api/reviews")
+        .send({owner: "bob",designer:"bob",review_body:"this game is bloody amazing!", category:"social deduction", title:"new cluedo is amazing"})
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"owner is not found in database"})
+        })
+    })
+    test("if any input fields are missing (even ones that don't have Not Null), give error 400 and meaningful message to maintain database quality/integrity",() => {
+        return request(app).post("/api/reviews")
+        .send({owner: "mallionaire",review_body:"this game is bloody amazing!", category:"banana", title:"new cluedo is amazing"})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"designer is missing"})
+        })
+    })
+    test("if any input fields are missing (even ones that don't have Not Null), give error 400 and meaningful message to maintain database quality/integrity, 2nd test",() => {
+        return request(app).post("/api/reviews")
+        .send({designer: "bob", review_body:"this game is bloody amazing!", category:"banana", title:"new cluedo is amazing"})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"owner is missing"})
+        })
+    })
+    test("if req.body data is in incorrect format from what expected, returns 400 and helpful error, owner",() => {
+        return request(app).post("/api/reviews")
+        .send({owner: 5,designer: "bob", review_body:"this game is bloody amazing!", category:"social deduction", title:"new cluedo is amazing"})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"owner is not in correct format"})
+        })
+    })
+    test("if req.body data is in incorrect format from what expected, returns 400 and helpful error, review_body",() => {
+        return request(app).post("/api/reviews")
+        .send({owner: "mallionaire",designer: "bob", review_body:true, category:"social deduction", title:"new cluedo is amazing"})
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg:"review_body is not in correct format"})
+        })
+    })
+    
 })

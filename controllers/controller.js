@@ -1,4 +1,4 @@
-const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername, updateVotesByCommentId } = require('../models/model.js')
+const { selectCategories, selectReviews, selectReviewsById,selectComments, insertComments, selectUsers,updateVotesByReviewId, deleteComment,selectUserByUsername, updateVotesByCommentId, insertReview } = require('../models/model.js')
 const app = require('../app.js')
 const {bodyTypeChecker,categoryChecker} = require('../db/utils')
 const fs = require('fs/promises')
@@ -109,8 +109,7 @@ exports.removeComment = (req,res,next) => {
 exports.fetchJson = (req,res,next) => {
     fs.readFile(`${__dirname}/../endpoints.json`,"utf-8")
     .then((data) => {
-        let parsedData = JSON.parse(data)
-        let endpoints = JSON.stringify(parsedData)
+        let endpoints = JSON.parse(data)
         res.status(200).send({endpoints})
     })
     .catch((err) => {
@@ -141,10 +140,29 @@ exports.changeVotesByCommentId = (req,res,next) => {
         return updateVotesByCommentId(body)
     })
     .then((comment) => {
-        res.status(200).send({comment})
+        res.status(202).send({comment})
     })
     .catch((err) => {
         err.prop_name = "comment_id"
         next(err)
     })
+}
+
+exports.addReview = (req,res,next) => {
+    let {body} = req
+    let typeObject = { owner: "string", designer: "string",review_body:"string",category:"string", title:"string" }
+    bodyTypeChecker(body,typeObject)
+    .then((msg) => {
+        return insertReview(body)
+    })
+    .then((review_id) => {
+        return selectReviewsById(review_id)
+    })
+    .then((review) => {
+        res.status(201).send({review})
+    })
+    .catch((err) => {
+        next(err)
+    })
+
 }
