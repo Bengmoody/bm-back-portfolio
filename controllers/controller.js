@@ -31,14 +31,34 @@ exports.getReviews = (req,res,next) => {
 exports.getComments = (req,res,next) => {
     //check if ID is valid and retrieve comments at the same time
     // if either fail then reject
-    const promises = [selectReviewsById(req.params.review_id),selectComments(req.params.review_id)]
-    return Promise.all(promises)
-    .then(([review, comments]) => {
-        res.status(200).send({comments})
+    let {review_id} = req.params
+    let {p,limit} = req.query;
+
+    let limitCheckerPromise = new Promise((resolve,reject) => {
+        if (Number.isNaN(parseInt(limit)) === true && limit!==undefined) {
+            reject({status:400,msg:"limit query is in incorrect format"})
+        } else {
+            resolve()
+        }
+    })
+
+    limitCheckerPromise
+    .then(() => {
+        let offset = undefined
+        limit = limit === undefined ? 10:limit
+        if ( p !== undefined ) {
+            offset = ((parseInt(p)-1)*parseInt(limit));
+        }
+        const promises = [selectReviewsById(review_id),selectComments(review_id,offset,parseInt(limit))]
+        return Promise.all(promises)
+
+    })
+    .then(([review, {rows,total_count}]) => {
+        
+        res.status(200).send({comments:rows,total_count})
     })
     .catch((err) => {
         err.prop_name = "review_id"
-
         next(err);
     })
 }

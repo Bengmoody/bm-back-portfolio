@@ -822,3 +822,89 @@ describe("GET /api/reviews (pagination)",() => {
         })
     })
 })
+
+// GET api reviews/:review_id/comments (pagination)
+describe("GET api reviews/:review_id/comments (pagination)",() => {
+    test("if given a limit and a page number, calculates which data to retrieve from database and returns correctly with code 200",() => {
+        return request(app).get("/api/reviews/2/comments?limit=1&p=2")
+        .expect(200)
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(1)
+            expect(comments[0].comment_id).toBe(1)
+            expect(comments[0].body).toBe('I loved this game too!')
+            expect(comments[0].votes).toBe(16)
+            expect(comments[0].author).toBe("bainesface")
+            expect(comments[0].review_id).toBe(2)
+            expect(typeof comments[0].created_at).toBe("string")
+        })
+    })
+    test("if limit is missing, assumes default of 10, returns correctly with code 200",() => {
+        return request(app).get("/api/reviews/2/comments?p=1")
+        .expect(200)
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(3)
+            comments.forEach((comment) => {
+                expect(comment).toEqual(
+                    expect.objectContaining({
+                        comment_id: expect.any(Number),
+                        body: expect.any(String),
+                        votes: expect.any(Number),
+                        author: expect.any(String),
+                        review_id: expect.any(Number),
+                        created_at: expect.any(String)
+                    })
+                )
+            })
+        })
+    })
+    test("if p is missing, runs query without it, just limiting results from the top (ordered by date,desc) returning 200, and correct data",() => {
+        return request(app).get("/api/reviews/2/comments?limit=2")
+        .expect(200)
+        .then(({body:{comments}}) => {
+            expect(comments).toHaveLength(2)
+            expect(comments[0].comment_id).toBe(5)
+            expect(comments[0].body).toBe('Now this is a story all about how, board games turned my life upside down')
+            expect(comments[0].votes).toBe(13)
+            expect(comments[0].author).toBe('mallionaire')
+            expect(comments[0].review_id).toBe(2)
+            expect(typeof comments[0].created_at).toBe("string")
+            expect(comments[1].comment_id).toBe(1)
+            expect(comments[1].body).toBe('I loved this game too!')
+            expect(comments[1].votes).toBe(16)
+            expect(comments[1].author).toBe("bainesface")
+            expect(comments[1].review_id).toBe(2)
+            expect(typeof comments[1].created_at).toBe("string")
+        })
+    })
+    test("data comes back with a total comment count (total_count) for the review_id, not just a count of the limited results",() => {
+        return request(app).get('/api/reviews/2/comments?limit=2')
+        .expect(200)
+        .then(({body:{comments,total_count}}) => {
+            expect(comments).toHaveLength(2)
+            expect(total_count).toBe("3")
+        })
+
+    })
+    test("if p refers to a non-existent page give 400 and error message",() => {
+        return request(app).get("/api/reviews/2/comments?limit=2&p=10")
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "missing page requested"})
+        })
+    })
+    test("if p has an invalid type, 400 and useful error",() => {
+        return request(app).get("/api/reviews/2/comments?limit=2&p=banana")
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "page query is in incorrect format"})
+        })
+    })
+    test("if limit has an invalid type, ignore it and use default behaviour",() => {
+        return request(app).get("/api/reviews/2/comments?limit=banana&p=2")
+        .expect(400)
+        .then(({body}) => {
+            expect(body).toEqual({msg: "limit query is in incorrect format"})
+        })
+    })
+    
+})

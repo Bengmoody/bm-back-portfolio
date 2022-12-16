@@ -38,11 +38,35 @@ exports.selectReviews = ({category, sort_by="created_at",order="DESC"}) => {
     })
 }
 
-exports.selectComments = (review_id) => {
-   return db.query('SELECT * FROM comments WHERE review_id=$1 ORDER BY created_at DESC',[review_id])
-   .then(({rows}) => {
-        return rows;
-   })
+exports.selectComments = (review_id,offset,limit) => {
+    let params = [review_id,limit]
+    let sqlStr = 'WITH cte AS (SELECT * FROM comments WHERE review_id=$1) SELECT * FROM (TABLE cte ORDER BY created_at DESC LIMIT $2'
+    if (offset !== undefined && Number.isNaN(offset) !== true) {
+            sqlStr+=' OFFSET $3'
+            params.push(offset)
+    } else if (offset !== undefined && Number.isNaN(offset) === true) {
+        return Promise.reject({status:400,msg:"page query is in incorrect format"})
+    }
+    sqlStr += ') sub RIGHT JOIN (SELECT count(*) FROM cte) c(total_count) ON true;'
+    return db.query(sqlStr,params)
+    .then(({rows}) => {
+        let testRows = [...rows]
+        if (testRows.length === 1) {
+            let vals = Object.values(testRows[0])
+            if (parseInt(vals.at(-1)) !== 0 && vals.at(0) === null) {
+                return Promise.reject({status:400, msg:"missing page requested"})
+            } else if (parseInt(vals.at(-1)) === 0) {
+                return  {rows:[],total_count:0};
+            }
+        }
+        if (rows.length !== 0) {
+            let total = rows[0].total_count
+            rows.forEach((row) => {
+                delete row.total_count;
+            })
+            return {rows,"total_count":total};
+        }
+    })
 }
 
 
