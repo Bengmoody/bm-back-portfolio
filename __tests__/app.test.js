@@ -48,7 +48,7 @@ describe('GET /api/reviews',() => {
         return request(app).get('/api/reviews')
         .expect(200)
         .then(({body:{reviews}}) => {
-            expect(reviews).toHaveLength(13)
+            expect(reviews).toHaveLength(10)
             reviews.forEach((review) => {
                 expect(review).toEqual(
                     expect.objectContaining({
@@ -364,7 +364,7 @@ describe("GET /api/reviews (queries)",() => {
         .expect(200)
         .then(({body:{reviews}}) => {
            expect(reviews).toBeSortedBy('title',{descending:true})
-           expect(reviews).toHaveLength(13)
+           expect(reviews).toHaveLength(10)
            reviews.forEach((review) => {
             expect(review).toEqual(
                 expect.objectContaining({
@@ -407,7 +407,7 @@ describe("GET /api/reviews (queries)",() => {
         return request(app).get('/api/reviews?banana=true')
         .expect(200)
         .then(({body:{reviews}}) => {
-            expect(reviews).toHaveLength(13)
+            expect(reviews).toHaveLength(10)
             expect(reviews).toBeSortedBy("created_at",{descending:true})
             reviews.forEach((review) => {
                 expect(review).toEqual(
@@ -430,7 +430,7 @@ describe("GET /api/reviews (queries)",() => {
         return request(app).get('/api/reviews?category=social+deduction&sort_by=owner&order=asc')
         .expect(200)
         .then(({body:{reviews}}) => {
-            expect(reviews).toHaveLength(11)
+            expect(reviews).toHaveLength(10)
             expect(reviews).toBeSortedBy("owner",{ascending:true})
             reviews.forEach((review) => {
                 expect(review.category).toBe("social deduction")
@@ -698,4 +698,127 @@ describe("POST /api/reviews",() => {
         })
     })
     
+})
+
+// GET /api/reviews (pagination)
+describe("GET /api/reviews (pagination)",() => {
+    test("can accept queries or limit and p to specify limit and page number.  When used appropriately give 200 and return relevant reviews",() => {
+        return request(app).get("/api/reviews?limit=2&p=3&sort_by=review_id&order=asc")
+        .expect(200)
+        .then(({body:{reviews}}) => {
+            expect(reviews).toHaveLength(2)
+            expect(reviews[0].review_id).toBe(5)
+            expect(reviews[0].title).toBe("Proident tempor et.")
+            expect(reviews[0].designer).toBe("Seymour Buttz")
+            expect(reviews[0].owner).toBe("mallionaire")
+            expect(reviews[0].review_img_url).toBe('https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg')
+            expect(reviews[0].category).toBe("social deduction")
+            expect(reviews[0].votes).toBe(5)
+            expect(typeof reviews[0].created_at).toBe("string")
+            expect(reviews[0].comment_count).toBe("0")
+            expect(reviews[1].review_id).toBe(6)
+            expect(reviews[1].title).toBe('Occaecat consequat officia in quis commodo.')
+            expect(reviews[1].designer).toBe("Ollie Tabooger")
+            expect(reviews[1].owner).toBe("mallionaire")
+            expect(reviews[1].review_img_url).toBe('https://images.pexels.com/photos/278918/pexels-photo-278918.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260')
+            expect(reviews[1].category).toBe("social deduction")
+            expect(reviews[1].votes).toBe(8)
+            expect(typeof reviews[1].created_at).toBe("string")
+            expect(reviews[1].comment_count).toBe("0")
+        })
+    })
+    test("if given only a limit, and no pages, works successfully to return only the first X reviews with a code 200",() => {
+        return request(app).get("/api/reviews?limit=2&sort_by=review_id&order=asc")
+        .expect(200)
+        .then(({body:{reviews,total_count}}) => {
+            expect(reviews).toHaveLength(2)
+            expect(reviews[0].review_id).toBe(1)
+            expect(reviews[0].title).toBe("Agricola")
+            expect(reviews[0].designer).toBe('Uwe Rosenberg')
+            expect(reviews[0].owner).toBe("mallionaire")
+            expect(reviews[0].review_img_url).toBe('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
+            expect(reviews[0].category).toBe('euro game')
+            expect(reviews[0].votes).toBe(1)
+            expect(typeof reviews[0].created_at).toBe("string")
+            expect(reviews[0].comment_count).toBe("0")
+            expect(reviews[1].review_id).toBe(2)
+            expect(reviews[1].title).toBe('Jenga')
+            expect(reviews[1].designer).toBe('Leslie Scott')
+            expect(reviews[1].owner).toBe('philippaclaire9')
+            expect(reviews[1].review_img_url).toBe('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
+            expect(reviews[1].category).toBe("dexterity")
+            expect(reviews[1].votes).toBe(5)
+            expect(typeof reviews[1].created_at).toBe("string")
+            expect(reviews[1].comment_count).toBe("3")
+            expect(total_count).toBe(13)
+        })
+    })
+    test("if limit (no pages) given and limit is more than total reviews, just returns all reviews, code 200", () => {
+        return request(app).get("/api/reviews?limit=20&sort_by=review_id&order=asc")
+        .expect(200)
+        .then(({body:{reviews,total_count}}) => {
+            expect(reviews.length).toBe(13)
+            expect(total_count).toBe(13)
+            reviews.forEach((review) => {
+                expect(review).toEqual(
+                    expect.objectContaining({
+                        review_id: expect.any(Number),
+                        designer: expect.any(String),
+                        owner: expect.any(String),
+                        title: expect.any(String),
+                        designer: expect.any(String),
+                        review_img_url: expect.any(String),
+                        category: expect.any(String),
+                        votes: expect.any(Number),
+                        comment_count: expect.any(String)
+                    })
+                )
+            })
+
+        })
+    })
+    test("if given pages and no limit, should utilise default limit of 10",() => {
+        return request(app).get("/api/reviews?p=1&sort_by=review_id&order=asc")
+        .expect(200)
+        .then(({body:{reviews,total_count}}) => {
+            expect(reviews.length).toBe(10)
+            expect(total_count).toBe(13)
+            reviews.forEach((review) => {
+                expect(review).toEqual(
+                    expect.objectContaining({
+                        review_id: expect.any(Number),
+                        designer: expect.any(String),
+                        owner: expect.any(String),
+                        title: expect.any(String),
+                        designer: expect.any(String),
+                        review_img_url: expect.any(String),
+                        category: expect.any(String),
+                        votes: expect.any(Number),
+                        comment_count: expect.any(String)
+                    })
+                )
+            })
+        })
+    })
+    test("if given pages and limit, but pages is higher than total pages, returns error, 400",() => {
+        return request(app).get("/api/reviews?p=15&limit=5&sort_by=review_id&order=asc")
+        .expect(400)
+        .then(({body})=> {
+            expect(body).toEqual({msg: "missing page requested"})
+        })
+    })
+    test("p has invalid type, produces 400 error and message",() => {
+        return request(app).get("/api/reviews?p=banana&limit=5&sort_by=review_id&order=asc")
+        .expect(400)
+        .then(({body})=> {
+            expect(body).toEqual({msg: "pages query is not in correct format"})
+        })
+    })
+    test("limit has invalid type, produces 400 error and message",() => {
+        return request(app).get("/api/reviews?p=2&limit=banana&sort_by=review_id&order=asc")
+        .expect(400)
+        .then(({body})=> {
+            expect(body).toEqual({msg: "limit query is not in correct format"})
+        })
+    })
 })
